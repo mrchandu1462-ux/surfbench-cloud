@@ -1,3 +1,4 @@
+from analyzer import analyze_response
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -32,4 +33,13 @@ def home():
 
 @app.post("/prompt")
 def run_prompt(request: PromptRequest):
-    return client.chat(request.prompt)
+
+    result = client.chat(request.prompt)
+
+    if result.get("success"):
+
+        analysis = analyze_response(result["answer"])
+
+        result["analysis"] = analysis
+
+    return result
