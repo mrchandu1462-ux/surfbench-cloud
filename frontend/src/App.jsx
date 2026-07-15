@@ -7,6 +7,7 @@ function App() {
   const [answer, setAnswer] = useState("");
   const [latency, setLatency] = useState("");
   const [usage, setUsage] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
 
   async function askSurf() {
     try {
@@ -17,14 +18,26 @@ function App() {
         }
       );
 
+      // Debug Logs
+      console.log("========== API RESPONSE ==========");
+      console.log("Full Response:", response.data);
+      console.log("Answer:", response.data.answer);
+      console.log("Usage:", response.data.usage);
+      console.log("Analysis:", response.data.analysis);
+      console.log("==================================");
+
       setAnswer(response.data.answer);
       setLatency(response.data.latency);
       setUsage(response.data.usage);
+      setAnalysis(response.data.analysis);
+
     } catch (error) {
-      console.error(error);
+      console.error("Backend Error:", error);
+
       setAnswer("Error connecting to backend.");
       setLatency("");
       setUsage(null);
+      setAnalysis(null);
     }
   }
 
@@ -61,6 +74,47 @@ function App() {
       <div className="response-card">
         {answer || "Your Surf AI response will appear here..."}
       </div>
+
+      <hr />
+
+      <h2>Verification Report</h2>
+
+      {analysis ? (
+        <div className="analysis-card">
+          <p>
+            <strong>Score:</strong> {analysis.score}/100
+          </p>
+
+          <p>
+            <strong>Language:</strong> {analysis.language}
+          </p>
+
+          <h3>✅ Passed</h3>
+          <ul>
+            {analysis.passed?.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+
+          <h3>⚠ Warnings</h3>
+          <ul>
+            {analysis.warnings?.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+
+          <h3>💡 Suggestions</h3>
+          <ul>
+            {analysis.suggestions?.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div className="analysis-card">
+          <p>No analysis received from backend.</p>
+        </div>
+      )}
     </div>
   );
 }
